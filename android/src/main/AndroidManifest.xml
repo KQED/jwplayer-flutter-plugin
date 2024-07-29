@@ -7,6 +7,6 @@
             android:name=".JwPlayerActivity"
             android:exported="false"
             android:label="@string/title_activity_player"
-            android:theme="@style/Theme.Android" />
+            android:theme="@style/Theme.AppCompat.Light" />
     </application>
 </manifest>

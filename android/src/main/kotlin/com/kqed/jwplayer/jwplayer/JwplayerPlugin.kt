@@ -1,8 +1,9 @@
 package com.kqed.jwplayer.jwplayer
 
-import android.R.attr.value
 import android.app.Activity
 import android.content.Intent
+import android.util.Log
+import com.jwplayer.pub.api.license.LicenseUtil
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -11,13 +12,13 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 
-
 /** JwplayerPlugin */
 class JwplayerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   /// The MethodChannel that will the communication between Flutter and native Android
   ///
   /// This local reference serves to register the plugin with the Flutter Engine and unregister it
   /// when the Flutter Engine is detached from the Activity
+  private val tag = "JwPlayerPlugin"
   private lateinit var channel : MethodChannel
   private lateinit var callbackChannel : MethodChannel
   private var boundActivity: Activity? = null
@@ -26,31 +27,49 @@ class JwplayerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, incomingChannelName)
     channel.setMethodCallHandler(this)
+    callbackChannel = channel
   }
 
   override fun onMethodCall(call: MethodCall, result: Result) {
     try  {
       when (call.method) {
         PluginMethods.Init.value -> {
+          val licenseKeyArg = "licenseKey"
+
+          val argumentData = call.arguments as? Map<*, *>
+          val licenseKey = argumentData?.get(licenseKeyArg)
+          LicenseUtil().setLicenseKey(boundActivity, licenseKey.toString())
+          Log.d(tag, "licenseKey: $licenseKey")
+          callbackToFlutterApp(CallbackMethod.sdkLicenseKeySetSuccess.methodKey)
           result.success("jwplayer init")
         }
 
         PluginMethods.Play.value -> {
-          result.success("jwplayer play")
+          val urlArg = "url"
+
+          val argumentData = call.arguments as? Map<*, *>
+          val url = argumentData?.get(urlArg)
           val myIntent = Intent(boundActivity, JwPlayerActivity::class.java)
-          myIntent.putExtra("key", value) //Optional parameters
+          myIntent.putExtra("url", url.toString()) //Optional parameters
           boundActivity?.startActivity(myIntent)
+          callbackToFlutterApp(
+            CallbackMethod.sdkPlayMethodCalled.methodKey,
+            mapOf("videoUrl" to url.toString())
+          )
         }
 
-        "getPlatformVersion" -> {
-          result.success("Android ${android.os.Build.VERSION.RELEASE}")
+        else -> {
+          callbackToFlutterApp(
+            CallbackMethod.sdkUnknownMethodError.methodKey,
+            mapOf("method" to call.method)
+          )
         }
       }
     } catch (error: Exception) {
       result.error(
-        "MethodNotSupported",
-        "MethodCall of (${call.method}) is not supported.",
-        null
+        "UnknownException",
+        error.message,
+        error
       )
     }
   }
@@ -73,5 +92,9 @@ class JwplayerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
   override fun onDetachedFromActivity() {
     boundActivity = null
+  }
+
+  private fun callbackToFlutterApp(method: String, arguments: Map<String, String>? = null) {
+    callbackChannel.invokeMethod(method, arguments ?: emptyMap<String, String>())
   }
 }
