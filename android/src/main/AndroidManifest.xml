@@ -1,3 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="com.kqed.jwplayer.jwplayer">
+    package="com.kqed.jwplayer.jwplayer">
+
+    <application>
+        <activity
+            android:name=".JwPlayerActivity"
+            android:exported="false"
+            android:label="@string/title_activity_player"
+            android:theme="@style/Theme.Android" />
+    </application>
 </manifest>
