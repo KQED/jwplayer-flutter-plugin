@@ -1,0 +1,35 @@
+PODS:
+  - Flutter (1.0.0)
+  - integration_test (0.0.1):
+    - Flutter
+  - jwplayer (0.0.1):
+    - Flutter
+    - JWPlayerKit (>= 4.0.0)
+  - JWPlayerKit (4.17.0)
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - integration_test (from `.symlinks/plugins/integration_test/ios`)
+  - jwplayer (from `.symlinks/plugins/jwplayer/ios`)
+
+SPEC REPOS:
+  trunk:
+    - JWPlayerKit
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  integration_test:
+    :path: ".symlinks/plugins/integration_test/ios"
+  jwplayer:
+    :path: ".symlinks/plugins/jwplayer/ios"
+
+SPEC CHECKSUMS:
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  integration_test: ce0a3ffa1de96d1a89ca0ac26fca7ea18a749ef4
+  jwplayer: 51f1f007c50e0e5830b935b8c9d13f2f98f7630c
+  JWPlayerKit: b0fd3f2abf99f40f8cf8292d550864be4b5df3f9
+
+PODFILE CHECKSUM: 819463e6a0290f5a72f145ba7cde16e8b6ef0796
+
+COCOAPODS: 1.15.2

@@ -11,7 +11,8 @@ class MethodChannelJwplayer extends JwplayerPlatform {
 
   @override
   Future<void> init(String licenseKey) async {
-    final result = await methodChannel.invokeMethod('init', [licenseKey]);
+    final result = await methodChannel
+        .invokeMethod('initializeJwPlayer', {"licenseKey": licenseKey});
     if (kDebugMode) {
       print(result);
     }
@@ -19,7 +20,7 @@ class MethodChannelJwplayer extends JwplayerPlatform {
 
   @override
   Future<void> play(String url) async {
-    final result = await methodChannel.invokeMethod('play', [url]);
+    final result = await methodChannel.invokeMethod('play', {"url": url});
     if (kDebugMode) {
       print(result);
     }
