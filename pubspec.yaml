@@ -1,11 +1,10 @@
 name: jwplayer
-description: "A new Flutter plugin project."
+description: "Integration with Jwplayer to display vertical videos"
 version: 0.0.1
-homepage:
+homepage: https://github.com/KQED/jwplayer-flutter-plugin
 
 environment:
-  sdk: '>=3.4.3 <4.0.0'
-  flutter: '>=3.3.0'
+  sdk: '>=3.2.0 <4.0.0'
 
 dependencies:
   flutter:
