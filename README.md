@@ -18,7 +18,7 @@ If you want the latest, omit that line.
 jwplayer:
   git:
     url: https://github.com/KQED/jwplayer-flutter-plugin.git
-    ref: 7d1f50f7e356010a86eda6f0af31faccf269d706
+    ref: 608f02c3c219ed86dfb9257d8360d2a44b423684
 ```
 
 ### Set up a JWPlayer object
