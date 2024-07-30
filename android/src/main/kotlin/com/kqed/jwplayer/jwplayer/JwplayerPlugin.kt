@@ -39,7 +39,6 @@ class JwplayerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
           val argumentData = call.arguments as? Map<*, *>
           val licenseKey = argumentData?.get(licenseKeyArg)
           LicenseUtil().setLicenseKey(boundActivity, licenseKey.toString())
-          Log.d(tag, "licenseKey: $licenseKey")
           callbackToFlutterApp(CallbackMethod.sdkLicenseKeySetSuccess.methodKey)
           result.success("jwplayer init")
         }
