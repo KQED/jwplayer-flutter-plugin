@@ -2,8 +2,8 @@
 
 This repo provides a bridge between Flutter and JWPlayer's native iOS and Android SDKs.
 
-JWPlayer iOS SDK docs: https://docs.jwplayer.com/players/docs/ios-overview
-JWPlayer Android SDK docs: https://docs.jwplayer.com/players/docs/android-overview
+- JWPlayer iOS SDK docs: https://docs.jwplayer.com/players/docs/ios-overview
+- JWPlayer Android SDK docs: https://docs.jwplayer.com/players/docs/android-overview
 
 The current behavior of this plugin is to launch a native view fullscreen over the 
 Flutter app and auto play the video from the URL provided.
@@ -12,7 +12,7 @@ A close button, X, is provided to dismiss the view and return to the Flutter app
 ## Getting Started
 
 ### Add the dependency to pubspec.yaml:
-ref shown is the current ref at the time of writing this README.md
+The ref shown is the current ref at the time of writing this README.md.
 If you want the latest, omit that line.
 ```
 jwplayer:
