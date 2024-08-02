@@ -28,6 +28,7 @@ class JwPlayerActivity : AppCompatActivity() {
 
         val config = PlayerConfig.Builder()
             .playlist(playlist)
+            .autostart(true)
             .build()
 
         view.getPlayer(this).setup(config)
