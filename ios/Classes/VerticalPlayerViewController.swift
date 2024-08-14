@@ -15,8 +15,8 @@ class VerticalPlayerViewController: JWPlayerViewController {
     private let closeButton: UIButton = {
         if #available(iOS 13.0, *) {
             let closeButton = UIButton(type: .close)
-            closeButton.backgroundColor = .white
-            closeButton.layer.cornerRadius = 20 
+            closeButton.backgroundColor = .black
+            closeButton.layer.cornerRadius = 20
             return closeButton
         } else {
             let closeButton = UIButton()
@@ -31,6 +31,19 @@ class VerticalPlayerViewController: JWPlayerViewController {
             return closeButton
         }
     }()
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        
+        if #available(iOS 13.0, *) {
+            if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+                self.setCloseButtonBackground()
+            }
+        } else {
+            // Fallback on earlier versions
+        }
+    }
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -59,15 +72,24 @@ class VerticalPlayerViewController: JWPlayerViewController {
         }
     }
     
+    private func setCloseButtonBackground() {
+        if traitCollection.userInterfaceStyle == .dark {
+            closeButton.backgroundColor = .black
+        } else {
+            closeButton.backgroundColor = .white
+        }
+    }
+    
     private func setupUI() {
+        self.setCloseButtonBackground()
         self.view.addSubview(closeButton)
         self.closeButton.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            closeButton.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            closeButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -10),
-            closeButton.widthAnchor.constraint(equalToConstant: 40),
-            closeButton.heightAnchor.constraint(equalToConstant: 40),
+            closeButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
+            closeButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            closeButton.widthAnchor.constraint(equalToConstant: 40), // Set icon size
+            closeButton.heightAnchor.constraint(equalToConstant: 40)
         ])
     }
     
