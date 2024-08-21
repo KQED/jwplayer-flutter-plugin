@@ -1,6 +1,7 @@
 import Flutter
 import UIKit
 import JWPlayerKit
+import SwiftUI
 
 enum Method: String, CaseIterable {
     case initializeJwPlayer
@@ -74,15 +75,30 @@ public class JwplayerPlugin: NSObject, FlutterPlugin {
             return
         }
         
-        if let topController = topViewController() {
-            let vc = VerticalPlayerViewController()
-            vc.modalPresentationStyle = .fullScreen
-            vc.url = url
-            topController.present(vc, animated: true, completion: nil)
-            callbackToFlutter(CallbackMethod.sdkPlayMethodCalled, [Arguments.videoUrl.rawValue: url])
-        } else {
-            callbackToFlutter(CallbackMethod.sdkUnableToFindVC)
-        }
+        
+        let verticalPlayer = ScrollableVerticalVideoView()
+        let hostingController = UIHostingController(rootView: verticalPlayer)
+        hostingController.modalPresentationStyle = .fullScreen
+        let topViewController = topViewController()!
+        topViewController.view.backgroundColor = .black
+        hostingController.view.backgroundColor = .black
+        topViewController.addChild(hostingController)
+        topViewController.view.addSubview(hostingController.view)
+        hostingController.view.frame = topViewController.view.bounds
+        
+
+//         Notify the child view controller that it has been moved to a parent
+        hostingController.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+//                
+//        if let topController = topViewController() {
+//            let vc = VerticalPlayerViewController()
+//            vc.modalPresentationStyle = .fullScreen
+//            vc.url = url
+//            topController.present(vc, animated: true, completion: nil)
+//            callbackToFlutter(CallbackMethod.sdkPlayMethodCalled, [Arguments.videoUrl.rawValue: url])
+//        } else {
+//            callbackToFlutter(CallbackMethod.sdkUnableToFindVC)
+//        }
     }
     
     private func topViewController() -> UIViewController? {

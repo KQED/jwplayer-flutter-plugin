@@ -48,7 +48,7 @@ class VerticalPlayerViewController: JWPlayerViewController {
             // Create a config, and give it the item as a playlist.
             let config = try JWPlayerConfigurationBuilder()
                 .playlist(items: [item])
-                .autostart(true)
+                .autostart(false)
                 .build()
             
             // Set the config
