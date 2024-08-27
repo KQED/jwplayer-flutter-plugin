@@ -94,8 +94,8 @@ class _MyAppState extends State<MyApp> {
                     // it out here in case there are issues in the future
                     _jwplayerPlugin.play(
                       videoUrlHls,
-                      'Video title',
-                      'Video description',
+                      videoTitle: 'Video title',
+                      videoDescription: 'Video description',
                     );
                     // _jwplayerPlugin.play(videoUrlMp4);
                   },

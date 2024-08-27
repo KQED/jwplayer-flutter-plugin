@@ -58,6 +58,8 @@ class VerticalPlayerViewController: JWPlayerViewController {
             let skin = try JWPlayerSkinBuilder()
                 .titleIsVisible(videoTitle != nil && !(videoTitle?.isEmpty ?? true))
                 .descriptionIsVisible(videoDescription != nil && !(videoDescription?.isEmpty ?? true))
+                // Change the font for both title and description
+                // .font(UIFont (name: "HelveticaNeue-UltraLight", size: 30)!)
                 .build()
             // Set skin for player
             // Specifically, for us, show/hide title and description
