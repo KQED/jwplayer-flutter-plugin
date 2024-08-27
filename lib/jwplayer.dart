@@ -5,8 +5,8 @@ class Jwplayer {
     return JwplayerPlatform.instance.init(licenseKey);
   }
 
-  Future<void> play(String url) {
-    return JwplayerPlatform.instance.play(url);
+  Future<void> play(String url, String? videoTitle, String? videoDescription) {
+    return JwplayerPlatform.instance.play(url, videoTitle, videoDescription);
   }
 
   Future<String?> getPlatformVersion() {

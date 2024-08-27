@@ -92,7 +92,11 @@ class _MyAppState extends State<MyApp> {
                     // HALPlugIn.cpp:552 HALPlugIn::DeviceGetCurrentTime: got an error from the plug-in routine, Error: 1937010544 (stop)
                     // It doesn't appear to affect playback, so it should be ok, just calling
                     // it out here in case there are issues in the future
-                    _jwplayerPlugin.play(videoUrlHls);
+                    _jwplayerPlugin.play(
+                      videoUrlHls,
+                      'Video title',
+                      'Video description',
+                    );
                     // _jwplayerPlugin.play(videoUrlMp4);
                   },
                   child: const Text('Play video'),

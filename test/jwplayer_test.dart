@@ -16,7 +16,7 @@ class MockJwplayerPlatform
   }
 
   @override
-  Future<void> play(String url) {
+  Future<void> play(String url, String? videoTitle, String? videoDescription) {
     throw UnimplementedError();
   }
 }

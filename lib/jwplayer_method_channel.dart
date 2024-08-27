@@ -19,8 +19,16 @@ class MethodChannelJwplayer extends JwplayerPlatform {
   }
 
   @override
-  Future<void> play(String url) async {
-    final result = await methodChannel.invokeMethod('play', {"url": url});
+  Future<void> play(
+    String url,
+    String? videoTitle,
+    String? videoDescription,
+  ) async {
+    final result = await methodChannel.invokeMethod('play', {
+      "url": url,
+      "videoTitle": videoTitle,
+      "videoDescription": videoDescription,
+    });
     if (kDebugMode) {
       print(result);
     }

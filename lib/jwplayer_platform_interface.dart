@@ -32,7 +32,7 @@ abstract class JwplayerPlatform extends PlatformInterface {
     throw UnimplementedError('platformVersion() has not been implemented.');
   }
 
-  Future<void> play(String url) {
+  Future<void> play(String url, String? videoTitle, String? videoDescription) {
     throw UnimplementedError('play(String url) has not been implemented.');
   }
 }
