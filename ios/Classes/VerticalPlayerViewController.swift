@@ -11,6 +11,8 @@ import JWPlayerKit
 
 class VerticalPlayerViewController: JWPlayerViewController {
     var url: String?
+    var videoTitle: String?
+    var videoDescription: String?
     
     private let closeButton: UIButton = {
         if #available(iOS 13.0, *) {
@@ -53,9 +55,19 @@ class VerticalPlayerViewController: JWPlayerViewController {
         self.closeButton.addTarget(self, action: #selector(dismissPlayer), for: .touchUpInside)
         
         do {
+            let skin = try JWPlayerSkinBuilder()
+                .titleIsVisible(videoTitle != nil && !(videoTitle?.isEmpty ?? true))
+                .descriptionIsVisible(videoDescription != nil && !(videoDescription?.isEmpty ?? true))
+                .build()
+            // Set skin for player
+            // Specifically, for us, show/hide title and description
+            styling = skin
+
             // Create a JWPlayerItem
             let item = try JWPlayerItemBuilder()
                 .file(URL(string: url ?? "")!)
+                .title(videoTitle ?? "")
+                .description(videoDescription ?? "")
                 .build()
             
             // Create a config, and give it the item as a playlist.

@@ -53,7 +53,9 @@ public class JwplayerPlugin: NSObject, FlutterPlugin {
             setLicenseKey(licenseKey)
         case .play:
             let url = args["url"] as? String
-            launchVerticalPlayer(url)
+            let videoTitle = args["videoTitle"] as? String
+            let videoDescription = args["videoDescription"] as? String
+            launchVerticalPlayer(url, videoTitle, videoDescription)
         default:
             callbackToFlutter(CallbackMethod.sdkUnknownMethodError)
         }
@@ -68,7 +70,7 @@ public class JwplayerPlugin: NSObject, FlutterPlugin {
         self.callbackToFlutter(CallbackMethod.sdkLicenseKeySetSuccess)
     }
     
-    private func launchVerticalPlayer(_ url: String?) {
+     private func launchVerticalPlayer(_ url: String?, _ videoTitle: String?, _ videoDescription: String?) {
         if (url == nil) {
             self.callbackToFlutter(CallbackMethod.sdkUrlIsNull)
             return
@@ -78,6 +80,8 @@ public class JwplayerPlugin: NSObject, FlutterPlugin {
             let vc = VerticalPlayerViewController()
             vc.modalPresentationStyle = .fullScreen
             vc.url = url
+            vc.videoTitle = videoTitle
+            vc.videoDescription = videoDescription
             topController.present(vc, animated: true, completion: nil)
             callbackToFlutter(CallbackMethod.sdkPlayMethodCalled, [Arguments.videoUrl.rawValue: url])
         } else {
