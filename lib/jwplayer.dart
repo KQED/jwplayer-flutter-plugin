@@ -9,8 +9,18 @@ class Jwplayer {
     String url, {
     String? videoTitle,
     String? videoDescription,
+    String? captionUrl,
+    String? captionLocale,
+    String? captionLanguageLabel,
   }) {
-    return JwplayerPlatform.instance.play(url, videoTitle, videoDescription);
+    return JwplayerPlatform.instance.play(
+      url,
+      videoTitle,
+      videoDescription,
+      captionUrl,
+      captionLocale,
+      captionLanguageLabel,
+    );
   }
 
   Future<String?> getPlatformVersion() {
