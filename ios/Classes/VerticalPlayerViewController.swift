@@ -13,6 +13,9 @@ class VerticalPlayerViewController: JWPlayerViewController {
     var url: String?
     var videoTitle: String?
     var videoDescription: String?
+    var captionUrl: String?
+    var captionLocale: String?
+    var captionLanguageLabel: String?
     
     private let closeButton: UIButton = {
         if #available(iOS 13.0, *) {
@@ -46,7 +49,6 @@ class VerticalPlayerViewController: JWPlayerViewController {
         }
     }
 
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -58,18 +60,32 @@ class VerticalPlayerViewController: JWPlayerViewController {
             let skin = try JWPlayerSkinBuilder()
                 .titleIsVisible(videoTitle != nil && !(videoTitle?.isEmpty ?? true))
                 .descriptionIsVisible(videoDescription != nil && !(videoDescription?.isEmpty ?? true))
-                // Change the font for both title and description
-                // .font(UIFont (name: "HelveticaNeue-UltraLight", size: 30)!)
+            // Change the font for both title and description
+            // .font(UIFont (name: "HelveticaNeue-UltraLight", size: 30)!)
                 .build()
             // Set skin for player
             // Specifically, for us, show/hide title and description
             styling = skin
-
+            
+            var captionTracks: [JWMediaTrack] = []
+            if let captionUrl = URL(string: captionUrl ?? "") {
+                captionTracks = [
+                    try JWCaptionTrackBuilder()
+                        .file(captionUrl)
+                        .label(captionLanguageLabel ?? "English")
+                        .locale(captionLocale ?? "en")
+                        .defaultTrack(true)
+                        .build()
+                ]
+            }
+            
+            
             // Create a JWPlayerItem
             let item = try JWPlayerItemBuilder()
                 .file(URL(string: url ?? "")!)
                 .title(videoTitle ?? "")
                 .description(videoDescription ?? "")
+                .mediaTracks(captionTracks)
                 .build()
             
             // Create a config, and give it the item as a playlist.
@@ -81,8 +97,39 @@ class VerticalPlayerViewController: JWPlayerViewController {
             // Set the config
             player.configurePlayer(with: config)
         }
-        catch {
+        catch let error {
             // Handle Error
+            print("something went wrong \(error.localizedDescription)")
+            print("something went wrong \(error)")
+        }
+        
+        // Setup the default rendering style for side-loaded captions.
+        do {
+            // Change the default position for the caption
+//            let position = try JWCaptionPositionBuilder()
+//                .width(percentage: 100)
+//                .horizontalPosition(percentage: 0)
+//                .alignment(.center)
+//                .verticalPosition(lineIndex: 0)
+//                .build()
+            
+            // Change the caption style
+            let style = try JWCaptionStyleBuilder()
+//                .font(UIFont(name: "Zapfino", size: 20)!)
+//                .fontColor(.blue)
+//                .highlightColor(.white)
+//                .backgroundColor(UIColor(red: 0.3, green: 0.6, blue: 0.3, alpha: 0.7))
+//                .edgeStyle(.raised)
+                    // add position created above
+//                .position(position)
+                .allowScaling(true)
+                .build()
+            
+            // Supply the style to the player
+            playerView.captionStyle = style
+        }
+        catch {
+            // Handle error
         }
     }
     

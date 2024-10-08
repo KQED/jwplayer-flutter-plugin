@@ -26,9 +26,12 @@ class _MyAppState extends State<MyApp> {
   final iosLicenseKey = '6IJq5hYKVhpjB+l0gsdxl4x7HHJ8Ye32MuiRWhszckk2JlN7';
   final androidLicenseKey =
       '6IJq5hYKVhpjB+OcVfmTeXHVdNbF7VvuKnQKEVWKUlECp3eHJDg6UlQD2wsF+w';
-  final videoUrlHls = 'https://cdn.jwplayer.com/manifests/7WmvDLh5.m3u8';
+  final videoUrlHls = 'https://cdn.jwplayer.com/manifests/t6r9FzpF.m3u8';
   final videoUrlMp4 =
       'https://content.jwplatform.com/videos/7WmvDLh5-hYAEJ9Gw.mp4';
+  final captionUrl = 'https://content.jwplatform.com/tracks/kvtKkKSM.vtt';
+  final captionLocale = 'en';
+  final captionLanguageLabel = 'English';
 
   @override
   void initState() {
@@ -94,8 +97,11 @@ class _MyAppState extends State<MyApp> {
                     // it out here in case there are issues in the future
                     _jwplayerPlugin.play(
                       videoUrlHls,
-                      videoTitle: 'Video title',
-                      videoDescription: 'Video description',
+                      videoTitle: 'Example title',
+                      videoDescription: 'Example video description',
+                      captionUrl: captionUrl,
+                      captionLocale: captionLocale,
+                      captionLanguageLabel: captionLanguageLabel,
                     );
                     // _jwplayerPlugin.play(videoUrlMp4);
                   },

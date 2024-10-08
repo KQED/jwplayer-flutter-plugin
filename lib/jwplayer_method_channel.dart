@@ -23,11 +23,17 @@ class MethodChannelJwplayer extends JwplayerPlatform {
     String url,
     String? videoTitle,
     String? videoDescription,
+    String? captionUrl,
+    String? captionLocale,
+    String? captionLanguageLabel,
   ) async {
     final result = await methodChannel.invokeMethod('play', {
       "url": url,
       "videoTitle": videoTitle,
       "videoDescription": videoDescription,
+      "captionUrl": captionUrl,
+      "captionLocale": captionLocale,
+      "captionLanguageLabel": captionLanguageLabel,
     });
     if (kDebugMode) {
       print(result);

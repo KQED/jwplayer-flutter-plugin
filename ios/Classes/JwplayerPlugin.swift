@@ -55,7 +55,17 @@ public class JwplayerPlugin: NSObject, FlutterPlugin {
             let url = args["url"] as? String
             let videoTitle = args["videoTitle"] as? String
             let videoDescription = args["videoDescription"] as? String
-            launchVerticalPlayer(url, videoTitle, videoDescription)
+            let captionUrl = args["captionUrl"] as? String
+            let captionLocale = args["captionLocale"] as? String
+            let captionLanguageLabel = args["captionLanguageLabel"] as? String
+            launchVerticalPlayer(
+                url,
+                videoTitle,
+                videoDescription,
+                captionUrl,
+                captionLocale,
+                captionLanguageLabel
+            )
         default:
             callbackToFlutter(CallbackMethod.sdkUnknownMethodError)
         }
@@ -70,7 +80,14 @@ public class JwplayerPlugin: NSObject, FlutterPlugin {
         self.callbackToFlutter(CallbackMethod.sdkLicenseKeySetSuccess)
     }
     
-     private func launchVerticalPlayer(_ url: String?, _ videoTitle: String?, _ videoDescription: String?) {
+    private func launchVerticalPlayer(
+        _ url: String?,
+        _ videoTitle: String?,
+        _ videoDescription: String?,
+        _ captionUrl: String?,
+        _ captionLocale: String?,
+        _ captionLanguageLabel: String?
+    ) {
         if (url == nil) {
             self.callbackToFlutter(CallbackMethod.sdkUrlIsNull)
             return
@@ -82,6 +99,9 @@ public class JwplayerPlugin: NSObject, FlutterPlugin {
             vc.url = url
             vc.videoTitle = videoTitle
             vc.videoDescription = videoDescription
+            vc.captionUrl = captionUrl
+            vc.captionLocale = captionLocale
+            vc.captionLanguageLabel = captionLanguageLabel
             topController.present(vc, animated: true, completion: nil)
             callbackToFlutter(CallbackMethod.sdkPlayMethodCalled, [Arguments.videoUrl.rawValue: url])
         } else {
