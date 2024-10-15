@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.jwplayer.pub.api.configuration.PlayerConfig
 import com.jwplayer.pub.api.media.playlists.PlaylistItem
 import com.jwplayer.pub.view.JWPlayerView
+import com.jwplayer.pub.api.media.captions.Caption
+import com.jwplayer.pub.api.media.captions.CaptionType
 
 class JwPlayerActivity : AppCompatActivity() {
 
@@ -19,9 +21,24 @@ class JwPlayerActivity : AppCompatActivity() {
 
         val view = findViewById<JWPlayerView>(R.id.jwPlayerView)
         val url = intent.getStringExtra("url")
+        val captionUrl = intent.getStringExtra("captionUrl")
+        val captionLocale = intent.getStringExtra("captionLocale")
+        val captionLanguageLabel = intent.getStringExtra("captionLanguageLabel")
+
+        val captionTracks: ArrayList<Caption> = ArrayList();
+
+        val captionEn: Caption = Caption.Builder()
+            .file(captionUrl)
+            .label(captionLanguageLabel)
+            .kind(CaptionType.CAPTIONS)
+            .isDefault(true)
+            .build();
+            
+        captionTracks.add(captionEn);
 
         val playlistItem = PlaylistItem.Builder()
             .file(url)
+            .tracks(captionTracks)
             .build()
         val playlist: MutableList<PlaylistItem> = ArrayList()
         playlist.add(playlistItem)
