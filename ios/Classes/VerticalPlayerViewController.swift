@@ -60,8 +60,6 @@ class VerticalPlayerViewController: JWPlayerViewController {
             let skin = try JWPlayerSkinBuilder()
                 .titleIsVisible(videoTitle != nil && !(videoTitle?.isEmpty ?? true))
                 .descriptionIsVisible(videoDescription != nil && !(videoDescription?.isEmpty ?? true))
-            // Change the font for both title and description
-            // .font(UIFont (name: "HelveticaNeue-UltraLight", size: 30)!)
                 .build()
             // Set skin for player
             // Specifically, for us, show/hide title and description
@@ -105,27 +103,11 @@ class VerticalPlayerViewController: JWPlayerViewController {
         
         // Setup the default rendering style for side-loaded captions.
         do {
-            // Change the default position for the caption
-//            let position = try JWCaptionPositionBuilder()
-//                .width(percentage: 100)
-//                .horizontalPosition(percentage: 0)
-//                .alignment(.center)
-//                .verticalPosition(lineIndex: 0)
-//                .build()
-            
             // Change the caption style
             let style = try JWCaptionStyleBuilder()
-//                .font(UIFont(name: "Zapfino", size: 20)!)
-//                .fontColor(.blue)
-//                .highlightColor(.white)
-//                .backgroundColor(UIColor(red: 0.3, green: 0.6, blue: 0.3, alpha: 0.7))
-//                .edgeStyle(.raised)
-                    // add position created above
-//                .position(position)
                 .allowScaling(true)
                 .build()
             
-            // Supply the style to the player
             playerView.captionStyle = style
         }
         catch {
