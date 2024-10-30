@@ -64,7 +64,9 @@ class VerticalPlayerViewController: JWPlayerViewController {
             // Set skin for player
             // Specifically, for us, show/hide title and description
             styling = skin
-            
+            forceLandscapeOnFullScreen = false
+            forceFullScreenOnLandscape = false
+        
             var captionTracks: [JWMediaTrack] = []
             if let captionUrl = URL(string: captionUrl ?? "") {
                 captionTracks = [
@@ -76,7 +78,6 @@ class VerticalPlayerViewController: JWPlayerViewController {
                         .build()
                 ]
             }
-            
             
             // Create a JWPlayerItem
             let item = try JWPlayerItemBuilder()
