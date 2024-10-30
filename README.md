@@ -66,3 +66,22 @@ Future<void> _callbackMethodCallHandler(MethodCall call) async {
 ```
 jwPlayerPlugin.play(url);
 ```
+
+### Updating the plugin - iOS:
+- Open `example/ios/Runner.xcworkspace` in Xcode
+- Edit plugin components:
+	- Open directory at Pods > Development Pods > jwplayer > .. > .. > example > ios > .symlinks > plugins > jwplayer > ios > Classes
+	- Here you will find `JwplayerPlugin.swift` and `VerticalPlayerViewController.swift`
+	  - `JwplayerPlugin.swift` handles interactions between the Flutter code, using method channels, and the `VerticalPlayerViewController.swift` file
+	- You can run the plugin's iOS project with Runner.xcworkspace open in Xcode which will launch the plugin example 
+	  - Edit the plugin code with Xcode's error checking, linting, code docs, etc.
+	- Alternatively, you can run the plugin example in VsCode by opening the jwplayer-flutter-plugin directory
+		- Open main.dart and run the project. The majority of the Flutter code lives direclty in main.dart
+	- `VerticalPlayerViewController.swift` contains all the specific UI and player code for the view that appears in the Flutter project.
+		- Any player settings, vertical video properties, like urls, etc, will most likely be updated in this file.
+	- To test local plugin changes in the Flutter project, update the `jwplayer` package details in `pubspec.yaml`:
+		- Replace the `git`, `url`, and `ref` lines with:
+			- `path: /Users/markfransen/Uptech Studio/KQED/jwplayer-flutter-plugin`
+
+### Updating the plugin - Android:
+- Coming soon...
