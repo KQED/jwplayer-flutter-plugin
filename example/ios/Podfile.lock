@@ -26,7 +26,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  integration_test: ce0a3ffa1de96d1a89ca0ac26fca7ea18a749ef4
+  integration_test: 252f60fa39af5e17c3aa9899d35d908a0721b573
   jwplayer: 51f1f007c50e0e5830b935b8c9d13f2f98f7630c
   JWPlayerKit: b0fd3f2abf99f40f8cf8292d550864be4b5df3f9
 
