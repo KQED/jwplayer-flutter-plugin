@@ -67,7 +67,7 @@ Future<void> _callbackMethodCallHandler(MethodCall call) async {
 jwPlayerPlugin.play(url);
 ```
 
-### Updating the plugin - iOS:
+### Updating the plugin code - iOS:
 - Open `example/ios/Runner.xcworkspace` in Xcode
 - Edit plugin components:
 	- Open directory at Pods > Development Pods > jwplayer > .. > .. > example > ios > .symlinks > plugins > jwplayer > ios > Classes
@@ -83,5 +83,15 @@ jwPlayerPlugin.play(url);
 		- Replace the `git`, `url`, and `ref` lines with:
 			- `path: /Users/markfransen/Uptech Studio/KQED/jwplayer-flutter-plugin`
 
-### Updating the plugin - Android:
-- Coming soon...
+### Updating the plugin code - Android:
+- Open jwplayer-flutter-plugin/android in Android Studio
+- The following files are where the plugin code lives:
+  - CallbackMethods.kt
+  - JwPlayerActivity.kt
+  - JwplayerPlugin.kt
+  - PluginMethods.kt
+
+### Updating/running the example app code - Flutter:
+- Open the jwplayer-flutter-plugin in VSCode
+- Open example > lib > main.dart
+- Here we can adjust the UI for the example app, test new changes, for example when captions are added to videos, etc.
