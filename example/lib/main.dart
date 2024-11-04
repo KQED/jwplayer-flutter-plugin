@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -23,9 +24,9 @@ class _MyAppState extends State<MyApp> {
   final _pluginCallbacksChannel = const MethodChannel('org.kqed.jwplayer');
 
   final _jwplayerPlugin = Jwplayer();
-  final iosLicenseKey = '6IJq5hYKVhpjB+l0gsdxl4x7HHJ8Ye32MuiRWhszckk2JlN7';
-  final androidLicenseKey =
-      '6IJq5hYKVhpjB+OcVfmTeXHVdNbF7VvuKnQKEVWKUlECp3eHJDg6UlQD2wsF+w';
+  // License keys can be found at https://dashboard.jwplayer.com/p/<siteId>/players
+  final iosLicenseKey = 'iosLicenseKey';
+  final androidLicenseKey = 'androidLicenseKey';
   final videoUrlHls = 'https://cdn.jwplayer.com/manifests/t6r9FzpF.m3u8';
   final videoUrlMp4 =
       'https://content.jwplatform.com/videos/7WmvDLh5-hYAEJ9Gw.mp4';
@@ -62,8 +63,9 @@ class _MyAppState extends State<MyApp> {
   Future<void> initPlatformState() async {
     // Platform messages may fail, so we use a try/catch PlatformException.
     // We also handle the message potentially returning null.
+    final licenseKey = Platform.isAndroid ? androidLicenseKey : iosLicenseKey;
     try {
-      await _jwplayerPlugin.init(iosLicenseKey);
+      await _jwplayerPlugin.init(licenseKey);
     } on PlatformException {
       if (kDebugMode) {
         print('error');
