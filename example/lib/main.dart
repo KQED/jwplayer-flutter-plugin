@@ -24,8 +24,8 @@ class _MyAppState extends State<MyApp> {
   final _pluginCallbacksChannel = const MethodChannel('org.kqed.jwplayer');
 
   final _jwplayerPlugin = Jwplayer();
-  final iosLicenseKey = '6IJq5hYKVhpjB+l0gsdxl4x7HHJ8Ye32MuiRWhszckk2JlN7';
-  final androidLicenseKey = 'OcVfmTeXHVdNbF7VvuKnQKEVWKUlECp3eHJDg6UlQD2wsF+w';
+  final iosLicenseKey = 'iosLicenseKey';
+  final androidLicenseKey = 'androidLicenseKey';
   final videoUrlHls = 'https://cdn.jwplayer.com/manifests/t6r9FzpF.m3u8';
   final videoUrlMp4 =
       'https://content.jwplatform.com/videos/7WmvDLh5-hYAEJ9Gw.mp4';
