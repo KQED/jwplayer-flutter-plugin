@@ -20,9 +20,7 @@ class MockJwplayerPlatform
     String url,
     String? videoTitle,
     String? videoDescription,
-    String? captionUrl,
-    String? captionLocale,
-    String? captionLanguageLabel,
+    List<Caption>? captions,
   ) {
     throw UnimplementedError();
   }

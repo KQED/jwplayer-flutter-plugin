@@ -36,10 +36,33 @@ abstract class JwplayerPlatform extends PlatformInterface {
     String url,
     String? videoTitle,
     String? videoDescription,
-    String? captionUrl,
-    String? captionLocale,
-    String? captionLanguageLabel,
+    List<Caption>? captions,
   ) {
     throw UnimplementedError('play(String url) has not been implemented.');
+  }
+}
+
+class Caption {
+  Caption({
+    required this.url,
+    required this.locale,
+    required this.languageLabel,
+  });
+
+  final String url;
+  final String locale;
+  final String languageLabel;
+
+  Map<String, dynamic> toMap() {
+    return {
+      'url': url,
+      'locale': locale,
+      'languageLabel': languageLabel,
+    };
+  }
+
+  @override
+  String toString() {
+    return 'Caption(url: $url, locale: $locale, languageLabel: $languageLabel )';
   }
 }

@@ -7,6 +7,7 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:jwplayer/jwplayer.dart';
+import 'package:jwplayer/jwplayer_platform_interface.dart';
 
 void main() {
   runApp(const MyApp());
@@ -30,9 +31,18 @@ class _MyAppState extends State<MyApp> {
   final videoUrlHls = 'https://cdn.jwplayer.com/manifests/t6r9FzpF.m3u8';
   final videoUrlMp4 =
       'https://content.jwplatform.com/videos/7WmvDLh5-hYAEJ9Gw.mp4';
-  final captionUrl = 'https://content.jwplatform.com/tracks/kvtKkKSM.vtt';
-  final captionLocale = 'en';
-  final captionLanguageLabel = 'English';
+  final List<Caption> captions = [
+    Caption(
+      url: 'https://content.jwplatform.com/tracks/kvtKkKSM.vtt',
+      locale: 'en',
+      languageLabel: 'English',
+    ),
+    Caption(
+      url: 'https://content.jwplatform.com/tracks/kvtKkKSM.vtt',
+      locale: 'es',
+      languageLabel: 'Spanish',
+    ),
+  ];
 
   @override
   void initState() {
@@ -101,9 +111,7 @@ class _MyAppState extends State<MyApp> {
                       videoUrlHls,
                       videoTitle: 'Example title',
                       videoDescription: 'Example video description',
-                      captionUrl: captionUrl,
-                      captionLocale: captionLocale,
-                      captionLanguageLabel: captionLanguageLabel,
+                      captions: captions,
                     );
                     // _jwplayerPlugin.play(videoUrlMp4);
                   },

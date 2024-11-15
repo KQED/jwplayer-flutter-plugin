@@ -55,16 +55,19 @@ public class JwplayerPlugin: NSObject, FlutterPlugin {
             let url = args["url"] as? String
             let videoTitle = args["videoTitle"] as? String
             let videoDescription = args["videoDescription"] as? String
-            let captionUrl = args["captionUrl"] as? String
-            let captionLocale = args["captionLocale"] as? String
-            let captionLanguageLabel = args["captionLanguageLabel"] as? String
+            guard let args = call.arguments as? [String: Any],
+              let captionsArray = args["captions"] as? [[String: Any]] else {
+                result(FlutterError(code: "INVALID_ARGUMENT", message: "Invalid arguments passed", details: nil))
+                return
+            }
+
+            let captions = captionsArray.compactMap { Caption(from: $0) }
+
             launchVerticalPlayer(
                 url,
                 videoTitle,
                 videoDescription,
-                captionUrl,
-                captionLocale,
-                captionLanguageLabel
+                captions
             )
         default:
             callbackToFlutter(CallbackMethod.sdkUnknownMethodError)
@@ -84,9 +87,7 @@ public class JwplayerPlugin: NSObject, FlutterPlugin {
         _ url: String?,
         _ videoTitle: String?,
         _ videoDescription: String?,
-        _ captionUrl: String?,
-        _ captionLocale: String?,
-        _ captionLanguageLabel: String?
+        _ captions: [Caption]?
     ) {
         if (url == nil) {
             self.callbackToFlutter(CallbackMethod.sdkUrlIsNull)
@@ -99,9 +100,7 @@ public class JwplayerPlugin: NSObject, FlutterPlugin {
             vc.url = url
             vc.videoTitle = videoTitle
             vc.videoDescription = videoDescription
-            vc.captionUrl = captionUrl
-            vc.captionLocale = captionLocale
-            vc.captionLanguageLabel = captionLanguageLabel
+            vc.captions = captions
             topController.present(vc, animated: true, completion: nil)
             callbackToFlutter(CallbackMethod.sdkPlayMethodCalled, [Arguments.videoUrl.rawValue: url])
         } else {
