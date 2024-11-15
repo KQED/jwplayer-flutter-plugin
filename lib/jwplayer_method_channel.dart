@@ -23,21 +23,23 @@ class MethodChannelJwplayer extends JwplayerPlatform {
     String url,
     String? videoTitle,
     String? videoDescription,
-    String? captionUrl,
-    String? captionLocale,
-    String? captionLanguageLabel,
+    List<Caption>? captions,
   ) async {
     final result = await methodChannel.invokeMethod('play', {
       "url": url,
       "videoTitle": videoTitle,
       "videoDescription": videoDescription,
-      "captionUrl": captionUrl,
-      "captionLocale": captionLocale,
-      "captionLanguageLabel": captionLanguageLabel,
+      "captions": convertCaptions(captions ?? []),
     });
     if (kDebugMode) {
       print(result);
     }
+  }
+
+  List<Map<String, dynamic>> convertCaptions(List<Caption> captions) {
+    List<Map<String, dynamic>> captionsList =
+        captions.map((caption) => caption.toMap()).toList();
+    return captionsList;
   }
 
   @override

@@ -9,13 +9,28 @@ import Foundation
 import UIKit
 import JWPlayerKit
 
+struct Caption {
+    let url: String
+    let locale: String
+    let languageLabel: String
+
+    init?(from dictionary: [String: Any]) {
+        guard let url = dictionary["url"] as? String,
+              let locale = dictionary["locale"] as? String,
+              let languageLabel = dictionary["languageLabel"] as? String else {
+            return nil
+        }
+        self.url = url
+        self.locale = locale
+        self.languageLabel = languageLabel
+    }
+}
+
 class VerticalPlayerViewController: JWPlayerViewController {
     var url: String?
     var videoTitle: String?
     var videoDescription: String?
-    var captionUrl: String?
-    var captionLocale: String?
-    var captionLanguageLabel: String?
+    var captions: [Caption]?
     
     private let closeButton: UIButton = {
         if #available(iOS 13.0, *) {
@@ -68,17 +83,23 @@ class VerticalPlayerViewController: JWPlayerViewController {
             forceFullScreenOnLandscape = false
         
             var captionTracks: [JWMediaTrack] = []
-            if let captionUrl = URL(string: captionUrl ?? "") {
-                captionTracks = [
-                    try JWCaptionTrackBuilder()
-                        .file(captionUrl)
-                        .label(captionLanguageLabel ?? "English")
-                        .locale(captionLocale ?? "en")
-                        .defaultTrack(true)
-                        .build()
-                ]
+            captions?.forEach { caption in
+                do {
+                    if let captionUrl = URL(string: caption.url ?? "")
+                        {
+                        let captionTrack = try JWCaptionTrackBuilder()
+                            .file(captionUrl)
+                            .locale(caption.locale)
+                            .label(caption.languageLabel)
+                            .build()
+
+                            captionTracks.append(captionTrack)
+                        }
+                } catch {
+                    print("Failed to build caption track: \(error)")
+                }
             }
-            
+
             // Create a JWPlayerItem
             let item = try JWPlayerItemBuilder()
                 .file(URL(string: url ?? "")!)
