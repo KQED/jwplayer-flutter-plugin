@@ -2,6 +2,7 @@ package com.kqed.jwplayer.jwplayer
 
 import android.app.Activity
 import android.content.Intent
+import android.os.Bundle
 import android.util.Log
 import com.jwplayer.pub.api.license.LicenseUtil
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -45,22 +46,16 @@ class JwplayerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
         PluginMethods.Play.value -> {
           val urlArg = "url"
-          val captionUrlArg = "captionUrl"
-          val captionLocaleArg = "captionLocale"
-          val captionLanguageLabelArg = "captionLanguageLabel"
+          val captionsArg = "captions"
 
           val argumentData = call.arguments as? Map<*, *>
-
           val url = argumentData?.get(urlArg)
-          val captionUrl = argumentData?.get(captionUrlArg)
-          val captionLocale = argumentData?.get(captionLocaleArg)
-          val captionLanguageLabel = argumentData?.get(captionLanguageLabelArg)
+
+          val captions = argumentData?.get(captionsArg) 
 
           val myIntent = Intent(boundActivity, JwPlayerActivity::class.java)
           myIntent.putExtra("url", url.toString())
-          myIntent.putExtra("captionUrl", captionUrl.toString())
-          myIntent.putExtra("captionLocale", captionLocale.toString())
-          myIntent.putExtra("captionLanguageLabel", captionLanguageLabel.toString())
+          myIntent.putExtra("captions", captions.toString())
 
           boundActivity?.startActivity(myIntent)
           callbackToFlutterApp(
