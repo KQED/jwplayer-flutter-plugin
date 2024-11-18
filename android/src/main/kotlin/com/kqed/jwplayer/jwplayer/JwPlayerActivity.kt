@@ -9,6 +9,39 @@ import com.jwplayer.pub.view.JWPlayerView
 import com.jwplayer.pub.api.media.captions.Caption
 import com.jwplayer.pub.api.media.captions.CaptionType
 
+data class PlugInCaption(
+    val url: String,
+    val languageLabel: String
+) {
+    companion object {
+        // Function to parse the input string and return an array of PlugInCaption objects
+        fun fromMap(input: String): Array<PlugInCaption> {
+            // Step 1: Extract languageLabel and URL into a map
+            val regex = Regex("""languageLabel=(\w+),.*?url=([^\s,}]+)""")
+            val mapList = mutableListOf<Map<String, String>>()
+
+            regex.findAll(input).forEach { matchResult ->
+                val languageLabel = matchResult.groupValues[1]
+                val url = matchResult.groupValues[2]
+                mapList.add(
+                    mapOf(
+                        "languageLabel" to languageLabel,
+                        "url" to url
+                    )
+                )
+            }
+
+            // Step 2: Transform the map list into an array of PlugInCaption
+            return mapList.map { map ->
+                PlugInCaption(
+                    url = map["url"] ?: "",
+                    languageLabel = map["languageLabel"] ?: ""
+                )
+            }.toTypedArray()
+        }
+    }
+}
+
 class JwPlayerActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,20 +54,21 @@ class JwPlayerActivity : AppCompatActivity() {
 
         val view = findViewById<JWPlayerView>(R.id.jwPlayerView)
         val url = intent.getStringExtra("url")
-        val captionUrl = intent.getStringExtra("captionUrl")
-        val captionLocale = intent.getStringExtra("captionLocale")
-        val captionLanguageLabel = intent.getStringExtra("captionLanguageLabel")
 
         val captionTracks: ArrayList<Caption> = ArrayList();
-
-        val captionEn: Caption = Caption.Builder()
-            .file(captionUrl)
-            .label(captionLanguageLabel)
-            .kind(CaptionType.CAPTIONS)
-            .isDefault(true)
-            .build();
-            
-        captionTracks.add(captionEn);
+        val captionsString = intent.getStringExtra("captions")
+        
+        if (captionsString != null) {
+            val plugInCaptions = PlugInCaption.fromMap(captionsString)
+            plugInCaptions.forEach { caption ->
+                captionTracks.add(Caption.Builder()
+                    .file(caption.url)
+                    .label(caption.languageLabel)
+                    .kind(CaptionType.CAPTIONS)
+                    .build()
+                )
+            }
+        }
 
         val playlistItem = PlaylistItem.Builder()
             .file(url)
