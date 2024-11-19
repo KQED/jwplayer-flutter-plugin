@@ -4,40 +4,40 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import com.jwplayer.pub.api.configuration.PlayerConfig
-import com.jwplayer.pub.api.media.playlists.PlaylistItem
-import com.jwplayer.pub.view.JWPlayerView
 import com.jwplayer.pub.api.media.captions.Caption
 import com.jwplayer.pub.api.media.captions.CaptionType
+import com.jwplayer.pub.api.media.playlists.PlaylistItem
+import com.jwplayer.pub.view.JWPlayerView
 
 data class PlugInCaption(
     val url: String,
     val languageLabel: String
 ) {
     companion object {
-        // Function to parse the input string and return an array of PlugInCaption objects
-        fun fromMap(input: String): Array<PlugInCaption> {
-            // Step 1: Extract languageLabel and URL into a map
-            val regex = Regex("""languageLabel=(\w+),.*?url=([^\s,}]+)""")
-            val mapList = mutableListOf<Map<String, String>>()
+        fun fromStringList(input: String): List<PlugInCaption> {
+            val listOfMaps = input
+                .removeSurrounding("[", "]")
+                .split("}, {") // Splits each map
+                .map { mapString ->
+                    mapString
+                        .removeSurrounding("{", "}") // Remove curly braces for each map
+                        .split(", ")
+                        .associate { entry ->
+                            val (key, value) = entry.split("=")
+                            key.replace("{", "") to value
+                        }
+                }
+            val captions = mutableListOf<PlugInCaption>()
 
-            regex.findAll(input).forEach { matchResult ->
-                val languageLabel = matchResult.groupValues[1]
-                val url = matchResult.groupValues[2]
-                mapList.add(
-                    mapOf(
-                        "languageLabel" to languageLabel,
-                        "url" to url
-                    )
-                )
-            }
+            listOfMaps.map { eachMap ->
+                eachMap["languageLabel"]?.let { label ->
+                    eachMap["url"]?.let { url ->
+                        captions.add(PlugInCaption(url, label))
+                    }
+                }
+            }.toList()
 
-            // Step 2: Transform the map list into an array of PlugInCaption
-            return mapList.map { map ->
-                PlugInCaption(
-                    url = map["url"] ?: "",
-                    languageLabel = map["languageLabel"] ?: ""
-                )
-            }.toTypedArray()
+            return captions
         }
     }
 }
@@ -59,7 +59,8 @@ class JwPlayerActivity : AppCompatActivity() {
         val captionsString = intent.getStringExtra("captions")
         
         if (captionsString != null) {
-            val plugInCaptions = PlugInCaption.fromMap(captionsString)
+            val plugInCaptions = PlugInCaption.fromStringList(captionsString)
+//            val plugInCaptions = PlugInCaption.fromMap(captionsString)
             plugInCaptions.forEach { caption ->
                 captionTracks.add(Caption.Builder()
                     .file(caption.url)
