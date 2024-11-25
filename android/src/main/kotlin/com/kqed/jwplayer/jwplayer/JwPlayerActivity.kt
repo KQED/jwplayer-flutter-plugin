@@ -15,6 +15,9 @@ data class PlugInCaption(
 ) {
     companion object {
         fun fromStringList(input: String): List<PlugInCaption> {
+            if (input == "[]") {
+                return emptyList<PlugInCaption>()
+            }
             val listOfMaps = input
                 .removeSurrounding("[", "]")
                 .split("}, {") // Splits each map
@@ -60,7 +63,7 @@ class JwPlayerActivity : AppCompatActivity() {
         
         if (captionsString != null) {
             val plugInCaptions = PlugInCaption.fromStringList(captionsString)
-//            val plugInCaptions = PlugInCaption.fromMap(captionsString)
+
             plugInCaptions.forEach { caption ->
                 captionTracks.add(Caption.Builder()
                     .file(caption.url)
