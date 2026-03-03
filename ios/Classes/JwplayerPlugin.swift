@@ -5,6 +5,7 @@ import JWPlayerKit
 enum Method: String, CaseIterable {
     case initializeJwPlayer
     case play
+    case setMuted
     case unknown
 }
 
@@ -54,6 +55,15 @@ public class JwplayerPlugin: NSObject, FlutterPlugin {
         case .initializeJwPlayer:
             let licenseKey = args["licenseKey"] as? String
             setLicenseKey(licenseKey)
+        case .setMuted:
+            if let viewIdNum = args["viewId"] as? NSNumber,
+               let muted = args["muted"] as? Bool {
+                let viewId = viewIdNum.int64Value
+                JwplayerViewRegistry.setMuted(viewId: viewId, muted: muted)
+                result(nil)
+            } else {
+                result(FlutterError(code: "INVALID_ARGUMENT", message: "viewId and muted required", details: nil))
+            }
         case .play:
             let url = args["url"] as? String
             let videoTitle = args["videoTitle"] as? String
@@ -135,5 +145,37 @@ public class JwplayerPlugin: NSObject, FlutterPlugin {
     private func callbackToFlutter(_ callbackMethod: CallbackMethod, _ arguments: Any? = nil) {
         self.callbackChannel?.invokeMethod(callbackMethod.rawValue, arguments: arguments)
     }
-    
+}
+
+// Inlined from JwplayerViewRegistry.swift so it compiles with the existing Pods project.
+class JwplayerViewRegistry {
+    private static var views: [Int64: WeakRef<JwplayerPlatformView>] = [:]
+    private static let lock = NSLock()
+
+    static func register(viewId: Int64, view: JwplayerPlatformView) {
+        lock.lock()
+        defer { lock.unlock() }
+        views[viewId] = WeakRef(view)
+    }
+
+    static func unregister(viewId: Int64) {
+        lock.lock()
+        defer { lock.unlock() }
+        views.removeValue(forKey: viewId)
+    }
+
+    static func setMuted(viewId: Int64, muted: Bool) {
+        lock.lock()
+        defer { lock.unlock() }
+        if let ref = views[viewId], let view = ref.value {
+            view.setMuted(muted)
+        }
+    }
+}
+
+private class WeakRef<T: AnyObject> {
+    weak var value: T?
+    init(_ value: T) {
+        self.value = value
+    }
 }

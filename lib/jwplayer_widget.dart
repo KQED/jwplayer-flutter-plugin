@@ -1,8 +1,19 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'jwplayer_platform_interface.dart';
+
+/// Invokes the native setMuted method for an embedded JWPlayer view.
+///
+/// Call this after the view is created (from [onPlatformViewCreated]).
+Future<void> setJwplayerViewMuted(int viewId, bool muted) async {
+  await const MethodChannel('org.kqed.jwplayer').invokeMethod('setMuted', {
+    'viewId': viewId,
+    'muted': muted,
+  });
+}
 
 /// A Flutter widget that embeds the native JWPlayer view.
 ///
@@ -19,6 +30,8 @@ class JwplayerWidget extends StatelessWidget {
     this.videoDescription,
     this.captions,
     this.aspectRatio = 9.0 / 16.0,
+    this.muted = false,
+    this.onPlatformViewCreated,
   });
 
   /// The video URL to play (e.g. HLS manifest or MP4).
@@ -36,6 +49,13 @@ class JwplayerWidget extends StatelessWidget {
   /// Aspect ratio of the player (default 9:16 for vertical video).
   final double aspectRatio;
 
+  /// Whether the player starts muted (default false).
+  final bool muted;
+
+  /// Called when the native view is created, with the platform view ID.
+  /// Use this to call [setJwplayerViewMuted] when toggling mute.
+  final void Function(int viewId)? onPlatformViewCreated;
+
   static const String _viewType = 'org.kqed.jwplayer/jwplayer_view';
 
   Map<String, dynamic> get _creationParams => {
@@ -43,6 +63,7 @@ class JwplayerWidget extends StatelessWidget {
         'videoTitle': videoTitle ?? '',
         'videoDescription': videoDescription ?? '',
         'captions': captions?.map((c) => c.toMap()).toList() ?? [],
+        'muted': muted,
       };
 
   @override
@@ -64,18 +85,24 @@ class JwplayerWidget extends StatelessWidget {
       );
     }
 
+    // hitTestBehavior.transparent lets taps pass through to Flutter's GestureDetector
+    // so the parent can handle mute/unmute on tap.
     final platformView = switch (defaultTargetPlatform) {
       TargetPlatform.iOS => UiKitView(
           viewType: _viewType,
           layoutDirection: TextDirection.ltr,
           creationParams: _creationParams,
           creationParamsCodec: const StandardMessageCodec(),
+          onPlatformViewCreated: onPlatformViewCreated,
+          hitTestBehavior: PlatformViewHitTestBehavior.transparent,
         ),
       TargetPlatform.android => AndroidView(
           viewType: _viewType,
           layoutDirection: TextDirection.ltr,
           creationParams: _creationParams,
           creationParamsCodec: const StandardMessageCodec(),
+          onPlatformViewCreated: onPlatformViewCreated,
+          hitTestBehavior: PlatformViewHitTestBehavior.transparent,
         ),
       _ => ColoredBox(
           color: const Color(0xFF000000),

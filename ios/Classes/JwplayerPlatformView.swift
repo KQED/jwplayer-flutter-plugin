@@ -5,6 +5,7 @@ import JWPlayerKit
 class JwplayerPlatformView: NSObject, FlutterPlatformView {
     private var _view: UIView
     private var playerView: JWPlayerView?
+    private let viewId: Int64
 
     init(
         frame: CGRect,
@@ -12,13 +13,23 @@ class JwplayerPlatformView: NSObject, FlutterPlatformView {
         arguments args: Any?,
         binaryMessenger messenger: FlutterBinaryMessenger?
     ) {
+        self.viewId = viewId
         _view = UIView(frame: frame)
         super.init()
         createNativeView(frame: frame, arguments: args)
+        JwplayerViewRegistry.register(viewId: viewId, view: self)
+    }
+
+    deinit {
+        JwplayerViewRegistry.unregister(viewId: viewId)
     }
 
     func view() -> UIView {
         return _view
+    }
+
+    func setMuted(_ muted: Bool) {
+        playerView?.player.volume = muted ? 0 : 1
     }
 
     private func createNativeView(frame: CGRect, arguments args: Any?) {
@@ -31,6 +42,11 @@ class JwplayerPlatformView: NSObject, FlutterPlatformView {
         let videoTitle = args["videoTitle"] as? String ?? ""
         let videoDescription = args["videoDescription"] as? String ?? ""
         let captionsArray = args["captions"] as? [[String: Any]] ?? []
+        let muted: Bool = {
+            if let b = args["muted"] as? Bool { return b }
+            if let n = args["muted"] as? NSNumber { return n.boolValue }
+            return false
+        }()
 
         let playerView = JWPlayerView(frame: frame)
         playerView.translatesAutoresizingMaskIntoConstraints = false
@@ -71,6 +87,17 @@ class JwplayerPlatformView: NSObject, FlutterPlatformView {
 
             playerView.player.configurePlayer(with: config)
             self.playerView = playerView
+            playerView.player.volume = muted ? 0 : 1
+
+            // Re-apply volume after delays; player may reset when playback starts (HLS can take a moment)
+            if muted {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak playerView] in
+                    playerView?.player.volume = 0
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak playerView] in
+                    playerView?.player.volume = 0
+                }
+            }
 
             let style = try JWCaptionStyleBuilder()
                 .allowScaling(true)

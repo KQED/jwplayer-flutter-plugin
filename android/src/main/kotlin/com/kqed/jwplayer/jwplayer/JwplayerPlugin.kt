@@ -68,6 +68,19 @@ class JwplayerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             CallbackMethod.sdkPlayMethodCalled.methodKey,
             mapOf("videoUrl" to url.toString())
           )
+          result.success(null)
+        }
+
+        PluginMethods.SetMuted.value -> {
+          val argumentData = call.arguments as? Map<*, *>
+          val viewId = (argumentData?.get("viewId") as? Number)?.toInt()
+          val muted = argumentData?.get("muted") as? Boolean
+          if (viewId != null && muted != null) {
+            JwplayerViewRegistry.setMuted(viewId, muted)
+            result.success(null)
+          } else {
+            result.error("INVALID_ARGUMENT", "viewId and muted required", null)
+          }
         }
 
         else -> {

@@ -12,7 +12,7 @@ import io.flutter.plugin.platform.PlatformView
 
 class JwplayerPlatformView(
     private val context: Context,
-    viewId: Int,
+    private val viewId: Int,
     creationParams: Map<String?, Any?>?,
     private val activityProvider: () -> android.app.Activity?
 ) : PlatformView {
@@ -23,6 +23,11 @@ class JwplayerPlatformView(
     init {
         val url = creationParams?.get("url") as? String ?: return
         val captionsList = creationParams["captions"] as? List<*>
+        val muted = when (val m = creationParams?.get("muted")) {
+            is Boolean -> m
+            is Number -> m.toInt() != 0
+            else -> false
+        }
 
         val playerView = JWPlayerView(context)
         playerView.layoutParams = FrameLayout.LayoutParams(
@@ -57,17 +62,30 @@ class JwplayerPlatformView(
         val config = PlayerConfig.Builder()
             .playlist(playlist)
             .autostart(true)
+            .mute(muted)
             .build()
 
         val activity = activityProvider()
         if (activity != null) {
-            playerView.getPlayer(activity).setup(config)
+            val player = playerView.getPlayer(activity)
+            player.setup(config)
+        }
+
+        JwplayerViewRegistry.register(viewId, this)
+    }
+
+    fun setMuted(muted: Boolean) {
+        playerView?.let { view ->
+            activityProvider()?.let { activity ->
+                view.getPlayer(activity).setMute(muted)
+            }
         }
     }
 
     override fun getView(): View = containerView
 
     override fun dispose() {
+        JwplayerViewRegistry.unregister(viewId)
         playerView?.let { view ->
             try {
                 activityProvider()?.let { activity ->
