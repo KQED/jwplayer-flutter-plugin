@@ -1,5 +1,7 @@
 import 'jwplayer_platform_interface.dart';
 
+export 'jwplayer_widget.dart';
+
 class Jwplayer {
   Future<void> init(String licenseKey) {
     return JwplayerPlatform.instance.init(licenseKey);

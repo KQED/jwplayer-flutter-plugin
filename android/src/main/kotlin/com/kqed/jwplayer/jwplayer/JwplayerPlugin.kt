@@ -29,6 +29,12 @@ class JwplayerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, incomingChannelName)
     channel.setMethodCallHandler(this)
     callbackChannel = channel
+
+    val viewFactory = JwplayerViewFactory { boundActivity }
+    flutterPluginBinding.platformViewRegistry.registerViewFactory(
+      "org.kqed.jwplayer/jwplayer_view",
+      viewFactory
+    )
   }
 
   override fun onMethodCall(call: MethodCall, result: Result) {

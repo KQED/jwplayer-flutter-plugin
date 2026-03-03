@@ -37,6 +37,9 @@ public class JwplayerPlugin: NSObject, FlutterPlugin {
         
         registrar.addMethodCallDelegate(instance, channel: channel)
         instance.callbackChannel = channel
+
+        let viewFactory = JwplayerViewFactory(messenger: registrar.messenger())
+        registrar.register(viewFactory, withId: "org.kqed.jwplayer/jwplayer_view")
     }
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
