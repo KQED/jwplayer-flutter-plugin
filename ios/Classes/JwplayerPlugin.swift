@@ -5,6 +5,10 @@ import JWPlayerKit
 enum Method: String, CaseIterable {
     case initializeJwPlayer
     case play
+    case setMuted
+    case getPosition
+    case seekTo
+    case resume
     case unknown
 }
 
@@ -24,8 +28,6 @@ enum CallbackMethod: String, CaseIterable {
     case sdkUnableToFindVC = "org.kqed.plugin.unable_to_find_viewcontroller"
 }
 
-// If we plan to make this a public package, we will need to change
-// the channelName to something generic
 private var channelName: String = "org.kqed.jwplayer"
 
 public class JwplayerPlugin: NSObject, FlutterPlugin {
@@ -37,6 +39,9 @@ public class JwplayerPlugin: NSObject, FlutterPlugin {
         
         registrar.addMethodCallDelegate(instance, channel: channel)
         instance.callbackChannel = channel
+
+        let viewFactory = JwplayerViewFactory(messenger: registrar.messenger())
+        registrar.register(viewFactory, withId: "org.kqed.jwplayer/jwplayer_view")
     }
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -51,10 +56,21 @@ public class JwplayerPlugin: NSObject, FlutterPlugin {
         case .initializeJwPlayer:
             let licenseKey = args["licenseKey"] as? String
             setLicenseKey(licenseKey)
+        case .setMuted:
+            if let viewIdNum = args["viewId"] as? NSNumber,
+               let muted = args["muted"] as? Bool {
+                let viewId = viewIdNum.int64Value
+                JwplayerViewRegistry.setMuted(viewId: viewId, muted: muted)
+                result(nil)
+            } else {
+                result(FlutterError(code: "INVALID_ARGUMENT", message: "viewId and muted required", details: nil))
+            }
         case .play:
             let url = args["url"] as? String
             let videoTitle = args["videoTitle"] as? String
             let videoDescription = args["videoDescription"] as? String
+            let startPosition = args["startPosition"] as? NSNumber
+            let loop = (args["loop"] as? NSNumber)?.boolValue ?? false
             guard let args = call.arguments as? [String: Any],
               let captionsArray = args["captions"] as? [[String: Any]] else {
                 result(FlutterError(code: "INVALID_ARGUMENT", message: "Invalid arguments passed", details: nil))
@@ -67,8 +83,35 @@ public class JwplayerPlugin: NSObject, FlutterPlugin {
                 url,
                 videoTitle,
                 videoDescription,
-                captions
+                captions,
+                startPosition: startPosition?.doubleValue,
+                loop: loop,
+                onDismiss: { position in
+                    result(position)
+                }
             )
+        case .getPosition:
+            if let viewIdNum = args["viewId"] as? NSNumber {
+                let position = JwplayerViewRegistry.getPosition(viewId: viewIdNum.int64Value)
+                result(position)
+            } else {
+                result(FlutterError(code: "INVALID_ARGUMENT", message: "viewId required", details: nil))
+            }
+        case .seekTo:
+            if let viewIdNum = args["viewId"] as? NSNumber,
+               let position = args["position"] as? NSNumber {
+                JwplayerViewRegistry.seekTo(viewId: viewIdNum.int64Value, position: position.doubleValue)
+                result(nil)
+            } else {
+                result(FlutterError(code: "INVALID_ARGUMENT", message: "viewId and position required", details: nil))
+            }
+        case .resume:
+            if let viewIdNum = args["viewId"] as? NSNumber {
+                JwplayerViewRegistry.resume(viewId: viewIdNum.int64Value)
+                result(nil)
+            } else {
+                result(FlutterError(code: "INVALID_ARGUMENT", message: "viewId required", details: nil))
+            }
         default:
             callbackToFlutter(CallbackMethod.sdkUnknownMethodError)
         }
@@ -87,10 +130,14 @@ public class JwplayerPlugin: NSObject, FlutterPlugin {
         _ url: String?,
         _ videoTitle: String?,
         _ videoDescription: String?,
-        _ captions: [Caption]?
+        _ captions: [Caption]?,
+        startPosition: Double? = nil,
+        loop: Bool = false,
+        onDismiss: @escaping (Double) -> Void
     ) {
         if (url == nil) {
             self.callbackToFlutter(CallbackMethod.sdkUrlIsNull)
+            onDismiss(-1)
             return
         }
         
@@ -101,10 +148,14 @@ public class JwplayerPlugin: NSObject, FlutterPlugin {
             vc.videoTitle = videoTitle
             vc.videoDescription = videoDescription
             vc.captions = captions
+            vc.startPosition = startPosition
+            vc.loop = loop
+            vc.onDismiss = onDismiss
             topController.present(vc, animated: true, completion: nil)
             callbackToFlutter(CallbackMethod.sdkPlayMethodCalled, [Arguments.videoUrl.rawValue: url])
         } else {
             callbackToFlutter(CallbackMethod.sdkUnableToFindVC)
+            onDismiss(-1)
         }
     }
     
@@ -132,5 +183,62 @@ public class JwplayerPlugin: NSObject, FlutterPlugin {
     private func callbackToFlutter(_ callbackMethod: CallbackMethod, _ arguments: Any? = nil) {
         self.callbackChannel?.invokeMethod(callbackMethod.rawValue, arguments: arguments)
     }
-    
+}
+
+// Inlined from JwplayerViewRegistry.swift so it compiles with the existing Pods project.
+class JwplayerViewRegistry {
+    private static var views: [Int64: WeakRef<JwplayerPlatformView>] = [:]
+    private static let lock = NSLock()
+
+    static func register(viewId: Int64, view: JwplayerPlatformView) {
+        lock.lock()
+        defer { lock.unlock() }
+        views[viewId] = WeakRef(view)
+    }
+
+    static func unregister(viewId: Int64) {
+        lock.lock()
+        defer { lock.unlock() }
+        views.removeValue(forKey: viewId)
+    }
+
+    static func setMuted(viewId: Int64, muted: Bool) {
+        lock.lock()
+        defer { lock.unlock() }
+        if let ref = views[viewId], let view = ref.value {
+            view.setMuted(muted)
+        }
+    }
+
+    static func getPosition(viewId: Int64) -> Double {
+        lock.lock()
+        defer { lock.unlock() }
+        if let ref = views[viewId], let view = ref.value {
+            return view.getPosition()
+        }
+        return -1
+    }
+
+    static func seekTo(viewId: Int64, position: Double) {
+        lock.lock()
+        defer { lock.unlock() }
+        if let ref = views[viewId], let view = ref.value {
+            view.seekTo(position)
+        }
+    }
+
+    static func resume(viewId: Int64) {
+        lock.lock()
+        defer { lock.unlock() }
+        if let ref = views[viewId], let view = ref.value {
+            view.resume()
+        }
+    }
+}
+
+private class WeakRef<T: AnyObject> {
+    weak var value: T?
+    init(_ value: T) {
+        self.value = value
+    }
 }

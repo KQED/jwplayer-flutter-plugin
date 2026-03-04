@@ -2,7 +2,7 @@ group = "com.kqed.jwplayer.jwplayer"
 version = "1.0-SNAPSHOT"
 
 buildscript {
-    ext.kotlin_version = "1.7.10"
+    ext.kotlin_version = "1.8.10"
     repositories {
         google()
         mavenCentral()
@@ -63,8 +63,10 @@ android {
 
     dependencies {
         testImplementation("org.jetbrains.kotlin:kotlin-test")
-        testImplementation("org.mockito:mockito-core:5.0.0")     
-        implementation("com.jwplayer:jwplayer-core:4.19.0")
-        implementation("com.jwplayer:jwplayer-common:4.19.0")
+        testImplementation("org.mockito:mockito-core:5.0.0")
+        implementation("androidx.appcompat:appcompat:1.6.1")
+        implementation("androidx.lifecycle:lifecycle-runtime:2.6.2")
+        implementation("com.jwplayer:jwplayer-core:4.24.1")
+        implementation("com.jwplayer:jwplayer-common:4.24.1")
     }
 }

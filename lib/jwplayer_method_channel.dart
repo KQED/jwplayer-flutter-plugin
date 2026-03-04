@@ -19,21 +19,42 @@ class MethodChannelJwplayer extends JwplayerPlatform {
   }
 
   @override
-  Future<void> play(
-    String url,
+  Future<double?> play(
+    String url, {
     String? videoTitle,
     String? videoDescription,
     List<Caption>? captions,
-  ) async {
-    final result = await methodChannel.invokeMethod('play', {
+    double? startPosition,
+  }) async {
+    final result = await methodChannel.invokeMethod<num>('play', {
       "url": url,
       "videoTitle": videoTitle,
       "videoDescription": videoDescription,
       "captions": convertCaptions(captions ?? []),
+      if (startPosition != null) "startPosition": startPosition,
     });
-    if (kDebugMode) {
-      print(result);
-    }
+    return result?.toDouble();
+  }
+
+  @override
+  Future<double> getPosition(int viewId) async {
+    final result = await methodChannel.invokeMethod<num>('getPosition', {
+      "viewId": viewId,
+    });
+    return result?.toDouble() ?? -1.0;
+  }
+
+  @override
+  Future<void> seekTo(int viewId, double position) async {
+    await methodChannel.invokeMethod('seekTo', {
+      "viewId": viewId,
+      "position": position,
+    });
+  }
+
+  @override
+  Future<void> resume(int viewId) async {
+    await methodChannel.invokeMethod('resume', {"viewId": viewId});
   }
 
   List<Map<String, dynamic>> convertCaptions(List<Caption> captions) {

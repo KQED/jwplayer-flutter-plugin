@@ -1,7 +1,9 @@
 package com.kqed.jwplayer.jwplayer
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import com.jwplayer.pub.api.configuration.PlayerConfig
 import com.jwplayer.pub.api.media.captions.Caption
@@ -47,6 +49,11 @@ data class PlugInCaption(
 
 class JwPlayerActivity : AppCompatActivity() {
 
+    private lateinit var playerView: JWPlayerView
+    private val startPosition: Double by lazy {
+        intent.getDoubleExtra("startPosition", 0.0)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_jw_player)
@@ -55,12 +62,12 @@ class JwPlayerActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
-        val view = findViewById<JWPlayerView>(R.id.jwPlayerView)
+        playerView = findViewById(R.id.jwPlayerView)
         val url = intent.getStringExtra("url")
 
-        val captionTracks: ArrayList<Caption> = ArrayList();
+        val captionTracks: ArrayList<Caption> = ArrayList()
         val captionsString = intent.getStringExtra("captions")
-        
+
         if (captionsString != null) {
             val plugInCaptions = PlugInCaption.fromStringList(captionsString)
 
@@ -74,10 +81,13 @@ class JwPlayerActivity : AppCompatActivity() {
             }
         }
 
-        val playlistItem = PlaylistItem.Builder()
+        val playlistItemBuilder = PlaylistItem.Builder()
             .file(url)
             .tracks(captionTracks)
-            .build()
+        if (startPosition > 0) {
+            playlistItemBuilder.startTime(startPosition)
+        }
+        val playlistItem = playlistItemBuilder.build()
         val playlist: MutableList<PlaylistItem> = ArrayList()
         playlist.add(playlistItem)
 
@@ -86,13 +96,30 @@ class JwPlayerActivity : AppCompatActivity() {
             .autostart(true)
             .build()
 
-        view.getPlayer(this).setup(config)
+        playerView.getPlayer(this).setup(config)
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                finishWithPosition()
+            }
+        })
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            android.R.id.home -> finish()
+            android.R.id.home -> finishWithPosition()
         }
         return true
+    }
+
+    private fun finishWithPosition() {
+        val position = try {
+            playerView.getPlayer(this).getPosition()
+        } catch (e: Exception) {
+            0.0
+        }
+        val resultIntent = Intent().putExtra("position", position)
+        setResult(RESULT_OK, resultIntent)
+        finish()
     }
 }

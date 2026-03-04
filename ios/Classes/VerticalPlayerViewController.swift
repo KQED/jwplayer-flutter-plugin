@@ -5,6 +5,7 @@
 //  Created by MARK FRANSEN on 7/25/24.
 //
 
+import AVFoundation
 import Foundation
 import UIKit
 import JWPlayerKit
@@ -31,6 +32,9 @@ class VerticalPlayerViewController: JWPlayerViewController {
     var videoTitle: String?
     var videoDescription: String?
     var captions: [Caption]?
+    var startPosition: Double?
+    var onDismiss: ((Double) -> Void)?
+    var loop: Bool = false
     
     private let closeButton: UIButton = {
         if #available(iOS 13.0, *) {
@@ -66,7 +70,16 @@ class VerticalPlayerViewController: JWPlayerViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
+        // Ensure audio plays on physical devices even when the silent switch is on.
+        do {
+            let session = AVAudioSession.sharedInstance()
+            try session.setCategory(.playback, mode: .moviePlayback)
+            try session.setActive(true)
+        } catch {
+            print("JWPlayer audio session setup failed: \(error)")
+        }
+
         self.setupUI()
         
         self.closeButton.addTarget(self, action: #selector(dismissPlayer), for: .touchUpInside)
@@ -159,7 +172,23 @@ class VerticalPlayerViewController: JWPlayerViewController {
     }
     
     @objc private func dismissPlayer() {
+        notifyDismissWithPosition()
         self.dismiss(animated: true)
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if isBeingDismissed {
+            notifyDismissWithPosition()
+        }
+    }
+
+    private var hasNotifiedDismiss = false
+    private func notifyDismissWithPosition() {
+        guard !hasNotifiedDismiss else { return }
+        hasNotifiedDismiss = true
+        let position = player.time.position
+        onDismiss?(position)
     }
     
     override func jwplayer(_ player: JWPlayer, didPauseWithReason reason: JWPauseReason) {
@@ -173,7 +202,17 @@ class VerticalPlayerViewController: JWPlayerViewController {
     // Player is ready
     override func jwplayerIsReady(_ player: JWPlayer) {
         super.jwplayerIsReady(player)
-        
+        if let start = startPosition, start > 0 {
+            player.seek(to: start)
+        }
+    }
+    
+    override func jwplayerContentDidComplete(_ player: JWPlayer) {
+        super.jwplayerContentDidComplete(player)
+        if loop {
+            player.seek(to: 0)
+            player.play()
+        }
     }
     
     // Setup error
