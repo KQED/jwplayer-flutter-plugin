@@ -25,10 +25,13 @@ class _MyAppState extends State<MyApp> {
   final _pluginCallbacksChannel = const MethodChannel('org.kqed.jwplayer');
 
   final _jwplayerPlugin = Jwplayer();
+  int? _embeddedViewId;
+  bool _embeddedMuted = false;
+  bool _showMethodChannelDemo = true;
   // License keys can be found at https://dashboard.jwplayer.com/p/<siteId>/players
   final iosLicenseKey = 'iosLicenseKey';
-  final androidLicenseKey = 'androidLicenseKey';
-  final videoUrlHls = 'https://cdn.jwplayer.com/manifests/t6r9FzpF.m3u8';
+  final androidLicenseKey = 'androidKey';
+  final videoUrlHls = 'https://cdn.jwplayer.com/manifests/sMsaZfMG.m3u8';
   final videoUrlMp4 =
       'https://content.jwplatform.com/videos/7WmvDLh5-hYAEJ9Gw.mp4';
   final List<Caption> captions = [
@@ -49,6 +52,16 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     initPlatformState();
     registerForCallbacks();
+
+    if (Platform.isAndroid) {
+      if (androidLicenseKey == 'androidKey') {
+        throw Exception('Android license key is not set');
+      }
+    } else {
+      if (iosLicenseKey == 'iosLicenseKey') {
+        throw Exception('iOS license key is not set');
+      }
+    }
   }
 
   void registerForCallbacks() {
@@ -88,6 +101,36 @@ class _MyAppState extends State<MyApp> {
     if (!mounted) return;
   }
 
+  Future<void> _toggleEmbeddedMute() async {
+    final viewId = _embeddedViewId;
+    if (viewId == null) return;
+    final newMuted = !_embeddedMuted;
+    await setJwplayerViewMuted(viewId, newMuted);
+    if (!mounted) return;
+    setState(() {
+      _embeddedMuted = newMuted;
+    });
+  }
+
+  Future<void> _openFullScreenFromEmbedded() async {
+    final viewId = _embeddedViewId;
+    if (viewId == null) return;
+    try {
+      final position = await _jwplayerPlugin.getPosition(viewId);
+      await _jwplayerPlugin.play(
+        videoUrlHls,
+        videoTitle: 'Example title',
+        videoDescription: 'Example video description',
+        captions: captions,
+        startPosition: position,
+      );
+    } on PlatformException catch (e) {
+      if (kDebugMode) {
+        print('Error opening full-screen from embedded player: $e');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -97,10 +140,42 @@ class _MyAppState extends State<MyApp> {
         ),
         body: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Center(
-            child: Column(
-              children: [
-                const Text('JWPlayer'),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _showMethodChannelDemo = true;
+                        });
+                      },
+                      child: const Text('Show MethodChannel'),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _showMethodChannelDemo = false;
+                        });
+                      },
+                      child: const Text('Show PlatformView'),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              if (_showMethodChannelDemo) ...[
+                const Text(
+                  'MethodChannel full-screen player',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
                 ElevatedButton(
                   onPressed: () {
                     // When using .m3u8 (HLS) videos, Swift produces the following error:
@@ -115,14 +190,61 @@ class _MyAppState extends State<MyApp> {
                     );
                     // _jwplayerPlugin.play(videoUrlMp4);
                   },
-                  child: const Text('Play video'),
+                  child: const Text('Play full-screen video'),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
                 Text(
                   "Callback From SDK: $_pluginCallbacksChannelData END",
                 ),
+              ] else ...[
+                const Text(
+                  'Embedded JWPlayer (PlatformView)',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Expanded(
+                  child: Center(
+                    child: JwplayerWidget(
+                      url: videoUrlHls,
+                      videoTitle: 'Example title',
+                      videoDescription: 'Embedded JWPlayer example',
+                      captions: captions,
+                      showControls: true,
+                      onPlatformViewCreated: (viewId) {
+                        setState(() {
+                          _embeddedViewId = viewId;
+                        });
+                      },
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: _embeddedViewId == null
+                            ? null
+                            : _toggleEmbeddedMute,
+                        child: Text(
+                          _embeddedMuted ? 'Unmute embedded' : 'Mute embedded',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: _embeddedViewId == null
+                            ? null
+                            : _openFullScreenFromEmbedded,
+                        child: const Text('Open full-screen from embedded'),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 32),
               ],
-            ),
+            ],
           ),
         ),
       ),

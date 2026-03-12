@@ -25,20 +25,38 @@ abstract class JwplayerPlatform extends PlatformInterface {
 
   Future<void> init(String licenseKey) {
     throw UnimplementedError(
-        'init(String licenseKey) has not been implemented.');
+      'init(String licenseKey) has not been implemented.',
+    );
   }
 
   Future<String?> getPlatformVersion() {
     throw UnimplementedError('platformVersion() has not been implemented.');
   }
 
-  Future<void> play(
-    String url,
+  Future<double?> play(
+    String url, {
     String? videoTitle,
     String? videoDescription,
     List<Caption>? captions,
-  ) {
+    double? startPosition,
+  }) {
     throw UnimplementedError('play(String url) has not been implemented.');
+  }
+
+  Future<double> getPosition(int viewId) {
+    throw UnimplementedError(
+      'getPosition(int viewId) has not been implemented.',
+    );
+  }
+
+  Future<void> seekTo(int viewId, double position) {
+    throw UnimplementedError(
+      'seekTo(int viewId, double position) has not been implemented.',
+    );
+  }
+
+  Future<void> resume(int viewId) {
+    throw UnimplementedError('resume(int viewId) has not been implemented.');
   }
 }
 
@@ -54,11 +72,7 @@ class Caption {
   final String languageLabel;
 
   Map<String, dynamic> toMap() {
-    return {
-      'url': url,
-      'locale': locale,
-      'languageLabel': languageLabel,
-    };
+    return {'url': url, 'locale': locale, 'languageLabel': languageLabel};
   }
 
   @override
