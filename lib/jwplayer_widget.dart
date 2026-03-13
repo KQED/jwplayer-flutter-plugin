@@ -30,7 +30,7 @@ class JwplayerWidget extends StatelessWidget {
     this.videoDescription,
     this.captions,
     this.aspectRatio = 9.0 / 16.0,
-    this.muted = false,
+    this.muted = true,
     this.startPosition,
     this.showControls = false,
     this.loop = false,
