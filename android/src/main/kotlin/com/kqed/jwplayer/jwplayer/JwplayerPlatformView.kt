@@ -94,6 +94,9 @@ class JwplayerPlatformView(
             if (lifecycleOwner != null) {
                 val player = view.getPlayer(lifecycleOwner)
                 player.setup(config)
+                if (muted) {
+                    player.setMute(true)
+                }
 
                 if (shouldLoop) {
                     player.addListener(

@@ -36,8 +36,22 @@ private enum JwAudioSession {
     }
 }
 
-private final class LoopPlaybackDelegate: NSObject, JWPlayerStateDelegate {
+private final class JwplayerPlaybackDelegate: NSObject, JWPlayerStateDelegate {
     var loop: Bool = false
+    /// When true, force volume to 0 on play attempts so autostart can run without an audible blip.
+    var startMuted: Bool = false
+
+    func jwplayer(_ player: JWPlayer, willPlayWithReason reason: JWPlayReason) {
+        if startMuted {
+            player.volume = 0
+        }
+    }
+
+    func jwplayer(_ player: JWPlayer, isAttemptingToPlay playlistItem: JWPlayerItem, reason: JWPlayReason) {
+        if startMuted {
+            player.volume = 0
+        }
+    }
 
     func jwplayerContentDidComplete(_ player: JWPlayer) {
         if loop {
@@ -47,12 +61,10 @@ private final class LoopPlaybackDelegate: NSObject, JWPlayerStateDelegate {
     }
 
     func jwplayerContentWillComplete(_ player: JWPlayer) {}
-    func jwplayer(_ player: JWPlayer, willPlayWithReason reason: JWPlayReason) {}
     func jwplayer(_ player: JWPlayer, isBufferingWithReason reason: JWBufferReason) {}
     func jwplayer(_ player: JWPlayer, updatedBuffer percent: Double, position time: JWTimeData) {}
     func jwplayer(_ player: JWPlayer, didFinishLoadingWithTime loadTime: TimeInterval) {}
     func jwplayer(_ player: JWPlayer, isPlayingWithReason reason: JWPlayReason) {}
-    func jwplayer(_ player: JWPlayer, isAttemptingToPlay playlistItem: JWPlayerItem, reason: JWPlayReason) {}
     func jwplayer(_ player: JWPlayer, didPauseWithReason reason: JWPauseReason) {}
     func jwplayer(_ player: JWPlayer, didBecomeIdleWithReason reason: JWIdleReason) {}
     func jwplayer(_ player: JWPlayer, isVisible: Bool) {}
@@ -72,7 +84,7 @@ class JwplayerPlatformView: NSObject, FlutterPlatformView {
     private var playerViewController: JWPlayerViewController?
     private let viewId: Int64
     private var loop: Bool = false
-    private var loopDelegate: LoopPlaybackDelegate?
+    private var playbackDelegate: JwplayerPlaybackDelegate?
     private var isMuted: Bool = false
 
     init(
@@ -198,11 +210,12 @@ class JwplayerPlatformView: NSObject, FlutterPlatformView {
                 vc.player.volume = muted ? 0 : 1
                 self.playerViewController = vc
 
-                if loop, let jwPlayer = vc.player as? JWPlayer {
-                    let delegate = LoopPlaybackDelegate()
-                    delegate.loop = true
+                if loop || muted, let jwPlayer = vc.player as? JWPlayer {
+                    let delegate = JwplayerPlaybackDelegate()
+                    delegate.loop = loop
+                    delegate.startMuted = muted
                     jwPlayer.playbackStateDelegate = delegate
-                    self.loopDelegate = delegate
+                    self.playbackDelegate = delegate
                 }
 
                 let style = try JWCaptionStyleBuilder()
@@ -217,22 +230,12 @@ class JwplayerPlatformView: NSObject, FlutterPlatformView {
                 self.playerView = pv
                 pv.player.volume = muted ? 0 : 1
 
-                if loop, let jwPlayer = pv.player as? JWPlayer {
-                    let delegate = LoopPlaybackDelegate()
-                    delegate.loop = true
+                if loop || muted, let jwPlayer = pv.player as? JWPlayer {
+                    let delegate = JwplayerPlaybackDelegate()
+                    delegate.loop = loop
+                    delegate.startMuted = muted
                     jwPlayer.playbackStateDelegate = delegate
-                    self.loopDelegate = delegate
-                }
-
-                if muted {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self, weak pv] in
-                        guard let self, self.isMuted else { return }
-                        pv?.player.volume = 0
-                    }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self, weak pv] in
-                        guard let self, self.isMuted else { return }
-                        pv?.player.volume = 0
-                    }
+                    self.playbackDelegate = delegate
                 }
 
                 let style = try JWCaptionStyleBuilder()

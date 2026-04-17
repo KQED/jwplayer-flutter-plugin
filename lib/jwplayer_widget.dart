@@ -30,7 +30,7 @@ class JwplayerWidget extends StatelessWidget {
     this.videoDescription,
     this.captions,
     this.aspectRatio = 9.0 / 16.0,
-    this.muted = false,
+    this.muted = true,
     this.startPosition,
     this.showControls = false,
     this.loop = false,
@@ -112,28 +112,28 @@ class JwplayerWidget extends StatelessWidget {
         : PlatformViewHitTestBehavior.transparent;
     final platformView = switch (defaultTargetPlatform) {
       TargetPlatform.iOS => UiKitView(
-        viewType: _viewType,
-        layoutDirection: TextDirection.ltr,
-        creationParams: _creationParams,
-        creationParamsCodec: const StandardMessageCodec(),
-        onPlatformViewCreated: onPlatformViewCreated,
-        hitTestBehavior: hitTestBehavior,
-      ),
+          viewType: _viewType,
+          layoutDirection: TextDirection.ltr,
+          creationParams: _creationParams,
+          creationParamsCodec: const StandardMessageCodec(),
+          onPlatformViewCreated: onPlatformViewCreated,
+          hitTestBehavior: hitTestBehavior,
+        ),
       TargetPlatform.android => _buildAndroidHybridView(
-        onPlatformViewCreated,
-        hitTestBehavior,
-      ),
+          onPlatformViewCreated,
+          hitTestBehavior,
+        ),
       _ => ColoredBox(
-        color: const Color(0xFF000000),
-        child: Center(
-          child: Text(
-            'JWPlayer is not supported on this platform',
-            style: DefaultTextStyle.of(
-              context,
-            ).style.copyWith(color: const Color(0xFFFFFFFF)),
+          color: const Color(0xFF000000),
+          child: Center(
+            child: Text(
+              'JWPlayer is not supported on this platform',
+              style: DefaultTextStyle.of(
+                context,
+              ).style.copyWith(color: const Color(0xFFFFFFFF)),
+            ),
           ),
         ),
-      ),
     };
 
     return AspectRatio(aspectRatio: aspectRatio, child: platformView);
@@ -150,13 +150,12 @@ class JwplayerWidget extends StatelessWidget {
       viewType: _viewType,
       surfaceFactory:
           (BuildContext context, PlatformViewController controller) {
-            return PlatformViewSurface(
-              controller: controller,
-              gestureRecognizers:
-                  const <Factory<OneSequenceGestureRecognizer>>{},
-              hitTestBehavior: hitTestBehavior,
-            );
-          },
+        return PlatformViewSurface(
+          controller: controller,
+          gestureRecognizers: const <Factory<OneSequenceGestureRecognizer>>{},
+          hitTestBehavior: hitTestBehavior,
+        );
+      },
       onCreatePlatformView: (PlatformViewCreationParams params) {
         final controller = PlatformViewsService.initExpensiveAndroidView(
           id: params.id,
