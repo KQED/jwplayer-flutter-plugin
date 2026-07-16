@@ -35,6 +35,7 @@ class VerticalPlayerViewController: JWPlayerViewController {
     var startPosition: Double?
     var onDismiss: ((Double) -> Void)?
     var loop: Bool = false
+    var allowsPictureInPicture: Bool = false
     
     private let closeButton: UIButton = {
         if #available(iOS 13.0, *) {
@@ -70,6 +71,8 @@ class VerticalPlayerViewController: JWPlayerViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        self.allowsPictureInPicturePlayback = allowsPictureInPicture
 
         // Ensure audio plays on physical devices even when the silent switch is on.
         do {

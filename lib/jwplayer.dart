@@ -13,6 +13,7 @@ class Jwplayer {
     String? videoDescription,
     List<Caption>? captions,
     double? startPosition,
+    bool allowsPictureInPicture = false,
   }) {
     return JwplayerPlatform.instance.play(
       url,
@@ -20,6 +21,7 @@ class Jwplayer {
       videoDescription: videoDescription,
       captions: captions,
       startPosition: startPosition,
+      allowsPictureInPicture: allowsPictureInPicture,
     );
   }
 
