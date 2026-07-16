@@ -167,6 +167,7 @@ class JwplayerPlatformView: NSObject, FlutterPlatformView {
         }()
         let startPosition = (args["startPosition"] as? NSNumber)?.doubleValue
         let showControls = (args["showControls"] as? NSNumber)?.boolValue ?? false
+        let allowsPictureInPicture = (args["allowsPictureInPicture"] as? NSNumber)?.boolValue ?? false
         loop = (args["loop"] as? NSNumber)?.boolValue ?? false
         isMuted = muted
 
@@ -208,6 +209,7 @@ class JwplayerPlatformView: NSObject, FlutterPlatformView {
                 vc.didMove(toParent: parentVC)
                 vc.player.configurePlayer(with: config)
                 vc.player.volume = muted ? 0 : 1
+                vc.allowsPictureInPicturePlayback = allowsPictureInPicture
                 self.playerViewController = vc
 
                 if loop || muted, let jwPlayer = vc.player as? JWPlayer {
@@ -229,6 +231,7 @@ class JwplayerPlatformView: NSObject, FlutterPlatformView {
                 pv.player.configurePlayer(with: config)
                 self.playerView = pv
                 pv.player.volume = muted ? 0 : 1
+                pv.allowsPictureInPicturePlayback = allowsPictureInPicture
 
                 if loop || muted, let jwPlayer = pv.player as? JWPlayer {
                     let delegate = JwplayerPlaybackDelegate()

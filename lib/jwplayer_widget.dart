@@ -34,6 +34,7 @@ class JwplayerWidget extends StatelessWidget {
     this.startPosition,
     this.showControls = false,
     this.loop = false,
+    this.allowsPictureInPicture = false,
     this.onPlatformViewCreated,
   });
 
@@ -66,6 +67,12 @@ class JwplayerWidget extends StatelessWidget {
   /// Defaults to false.
   final bool loop;
 
+  /// When true (iOS only), allows the native player to enter Picture in
+  /// Picture, including auto-starting it when the app is backgrounded.
+  /// Defaults to false, since our vertical/short-form video use cases don't
+  /// want the video staying on screen as a mini player when backgrounded.
+  final bool allowsPictureInPicture;
+
   /// Called when the native view is created, with the platform view ID.
   /// Use this to call [setJwplayerViewMuted] when toggling mute.
   final void Function(int viewId)? onPlatformViewCreated;
@@ -85,6 +92,7 @@ class JwplayerWidget extends StatelessWidget {
     }
     params['showControls'] = showControls;
     params['loop'] = loop;
+    params['allowsPictureInPicture'] = allowsPictureInPicture;
     return params;
   }
 

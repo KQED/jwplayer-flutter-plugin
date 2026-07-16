@@ -39,6 +39,7 @@ abstract class JwplayerPlatform extends PlatformInterface {
     String? videoDescription,
     List<Caption>? captions,
     double? startPosition,
+    bool allowsPictureInPicture = false,
   }) {
     throw UnimplementedError('play(String url) has not been implemented.');
   }

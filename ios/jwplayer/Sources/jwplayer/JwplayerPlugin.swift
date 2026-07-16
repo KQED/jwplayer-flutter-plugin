@@ -71,6 +71,7 @@ public class JwplayerPlugin: NSObject, FlutterPlugin {
             let videoDescription = args["videoDescription"] as? String
             let startPosition = args["startPosition"] as? NSNumber
             let loop = (args["loop"] as? NSNumber)?.boolValue ?? false
+            let allowsPictureInPicture = (args["allowsPictureInPicture"] as? NSNumber)?.boolValue ?? false
             guard let args = call.arguments as? [String: Any],
               let captionsArray = args["captions"] as? [[String: Any]] else {
                 result(FlutterError(code: "INVALID_ARGUMENT", message: "Invalid arguments passed", details: nil))
@@ -86,6 +87,7 @@ public class JwplayerPlugin: NSObject, FlutterPlugin {
                 captions,
                 startPosition: startPosition?.doubleValue,
                 loop: loop,
+                allowsPictureInPicture: allowsPictureInPicture,
                 onDismiss: { position in
                     result(position)
                 }
@@ -133,6 +135,7 @@ public class JwplayerPlugin: NSObject, FlutterPlugin {
         _ captions: [Caption]?,
         startPosition: Double? = nil,
         loop: Bool = false,
+        allowsPictureInPicture: Bool = false,
         onDismiss: @escaping (Double) -> Void
     ) {
         if (url == nil) {
@@ -150,6 +153,7 @@ public class JwplayerPlugin: NSObject, FlutterPlugin {
             vc.captions = captions
             vc.startPosition = startPosition
             vc.loop = loop
+            vc.allowsPictureInPicture = allowsPictureInPicture
             vc.onDismiss = onDismiss
             topController.present(vc, animated: true, completion: nil)
             callbackToFlutter(CallbackMethod.sdkPlayMethodCalled, [Arguments.videoUrl.rawValue: url])

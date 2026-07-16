@@ -25,6 +25,7 @@ class MethodChannelJwplayer extends JwplayerPlatform {
     String? videoDescription,
     List<Caption>? captions,
     double? startPosition,
+    bool allowsPictureInPicture = false,
   }) async {
     final result = await methodChannel.invokeMethod<num>('play', {
       "url": url,
@@ -32,6 +33,7 @@ class MethodChannelJwplayer extends JwplayerPlatform {
       "videoDescription": videoDescription,
       "captions": convertCaptions(captions ?? []),
       if (startPosition != null) "startPosition": startPosition,
+      "allowsPictureInPicture": allowsPictureInPicture,
     });
     return result?.toDouble();
   }
